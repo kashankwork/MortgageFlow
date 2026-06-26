@@ -2,7 +2,7 @@
 
 ## Locked MVP
 
-MortgageFlow is a role-based mortgage workflow and intelligent assignment platform. The MVP must prove:
+MortgageFlow is a role-based mortgage workflow and intelligent assignment platform. The MVP proves:
 
 - C# domain modeling and OOP behavior.
 - Controlled loan workflow transitions.
