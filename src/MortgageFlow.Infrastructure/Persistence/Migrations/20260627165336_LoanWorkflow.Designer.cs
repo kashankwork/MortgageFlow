@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MortgageFlow.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using MortgageFlow.Infrastructure.Persistence;
 namespace MortgageFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MortgageFlowDbContext))]
-    partial class MortgageFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260627165336_LoanWorkflow")]
+    partial class LoanWorkflow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

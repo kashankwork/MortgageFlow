@@ -46,7 +46,7 @@ public sealed class LoanApplicationTests
         var exception = Assert.Throws<DomainValidationException>(
             () => loan.TransitionTo(LoanStatus.Submitted, ActorId, null, Now.AddMinutes(1)));
 
-        Assert.Contains("borrower and property", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("borrower, property, and loan terms", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(LoanStatus.Draft, loan.Status);
         Assert.Empty(loan.StatusHistory);
     }
@@ -88,14 +88,15 @@ public sealed class LoanApplicationTests
         loan.AddProperty(
             Property.Create("123 Demo Street", "Pontiac", "MI", "48341", Money.Usd(350_000)),
             Now.AddMinutes(2));
+        loan.UpdateLoanTerms(Money.Usd(300_000), LoanPurpose.Purchase, 6.5m, 360, Now.AddMinutes(3));
 
         Assert.Throws<DomainValidationException>(
-            () => loan.TransitionTo(LoanStatus.Submitted, ActorId, null, Now.AddMinutes(1)));
+            () => loan.TransitionTo(LoanStatus.Submitted, ActorId, null, Now.AddMinutes(2)));
 
         Assert.Equal(LoanStatus.Draft, loan.Status);
         Assert.Null(loan.SubmittedUtc);
         Assert.Empty(loan.StatusHistory);
-        Assert.Equal(Now.AddMinutes(2), loan.UpdatedUtc);
+        Assert.Equal(Now.AddMinutes(3), loan.UpdatedUtc);
     }
 
     [Fact]
@@ -168,6 +169,7 @@ public sealed class LoanApplicationTests
         var loan = CreateDraft();
         loan.AddBorrower(Borrower.Create("Synthetic Borrower", "borrower@example.test", Money.Usd(125_000)), Now);
         loan.AddProperty(Property.Create("123 Demo Street", "Pontiac", "MI", "48341", Money.Usd(350_000)), Now);
+        loan.UpdateLoanTerms(Money.Usd(300_000), LoanPurpose.Purchase, 6.5m, 360, Now.AddMinutes(1));
         return loan;
     }
 

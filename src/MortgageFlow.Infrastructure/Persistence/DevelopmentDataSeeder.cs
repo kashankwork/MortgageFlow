@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MortgageFlow.Application.Authentication;
+using MortgageFlow.Domain;
 using MortgageFlow.Infrastructure.Identity;
 
 namespace MortgageFlow.Infrastructure.Persistence;
@@ -12,17 +14,20 @@ public sealed class DevelopmentDataSeeder
 
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly MortgageFlowDbContext _dbContext;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DevelopmentDataSeeder> _logger;
 
     public DevelopmentDataSeeder(
         RoleManager<IdentityRole<Guid>> roleManager,
         UserManager<ApplicationUser> userManager,
+        MortgageFlowDbContext dbContext,
         IConfiguration configuration,
         ILogger<DevelopmentDataSeeder> logger)
     {
         _roleManager = roleManager;
         _userManager = userManager;
+        _dbContext = dbContext;
         _configuration = configuration;
         _logger = logger;
     }
@@ -49,6 +54,8 @@ public sealed class DevelopmentDataSeeder
         await UpsertSyntheticUserAsync("processor@example.test", "Synthetic Processor", MortgageFlowRoles.Processor, demoPassword);
         await UpsertSyntheticUserAsync("underwriter@example.test", "Synthetic Underwriter", MortgageFlowRoles.Underwriter, demoPassword);
         await UpsertSyntheticUserAsync("teamlead@example.test", "Synthetic Team Lead", MortgageFlowRoles.TeamLead, demoPassword);
+
+        await SeedSyntheticWorkflowLoansAsync();
     }
 
     private async Task UpsertSyntheticUserAsync(string email, string fullName, string role, string password)
@@ -90,5 +97,71 @@ public sealed class DevelopmentDataSeeder
     private static string FormatErrors(IdentityResult result)
     {
         return string.Join("; ", result.Errors.Select(error => error.Description));
+    }
+
+    private async Task SeedSyntheticWorkflowLoansAsync()
+    {
+        var submittedDemoLoanNumber = LoanNumber.Create("MF-900001");
+        if (await _dbContext.LoanApplications
+            .AnyAsync(loan => loan.LoanNumber == submittedDemoLoanNumber))
+        {
+            return;
+        }
+
+        var broker = await _userManager.FindByEmailAsync("broker@example.test")
+            ?? throw new InvalidOperationException("Synthetic broker was not seeded.");
+        var processor = await _userManager.FindByEmailAsync("processor@example.test")
+            ?? throw new InvalidOperationException("Synthetic processor was not seeded.");
+        var underwriter = await _userManager.FindByEmailAsync("underwriter@example.test")
+            ?? throw new InvalidOperationException("Synthetic underwriter was not seeded.");
+
+        // Seed timelines sit safely in the past so manual workflow actions remain chronological.
+        var now = DateTime.UtcNow.AddHours(-2);
+        var submitted = CreateCompleteSyntheticLoan(
+            submittedDemoLoanNumber,
+            broker.Id,
+            now,
+            "Synthetic Submitted Borrower",
+            "submitted.borrower@example.test");
+        submitted.TransitionTo(LoanStatus.Submitted, broker.Id, null, now.AddMinutes(4));
+        submitted.AssignTo(processor.Id, now.AddMinutes(5));
+
+        var underwriting = CreateCompleteSyntheticLoan(
+            LoanNumber.Create("MF-900002"),
+            broker.Id,
+            now.AddMinutes(10),
+            "Synthetic Underwriting Borrower",
+            "underwriting.borrower@example.test");
+        underwriting.TransitionTo(LoanStatus.Submitted, broker.Id, null, now.AddMinutes(14));
+        underwriting.AssignTo(processor.Id, now.AddMinutes(15));
+        underwriting.TransitionTo(LoanStatus.Processing, processor.Id, null, now.AddMinutes(16));
+        underwriting.TransitionTo(LoanStatus.Underwriting, processor.Id, "Synthetic checklist complete.", now.AddMinutes(17));
+        underwriting.AssignTo(underwriter.Id, now.AddMinutes(18));
+
+        _dbContext.LoanApplications.AddRange(submitted, underwriting);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private static LoanApplication CreateCompleteSyntheticLoan(
+        LoanNumber loanNumber,
+        Guid brokerId,
+        DateTime createdUtc,
+        string borrowerName,
+        string borrowerEmail)
+    {
+        var loan = LoanApplication.CreateDraft(loanNumber, brokerId, Money.Usd(275_000), createdUtc);
+        loan.AddBorrower(Borrower.Create(borrowerName, borrowerEmail, Money.Usd(120_000)), createdUtc.AddMinutes(1));
+        loan.AddProperty(
+            Property.Create(
+                "123 Synthetic Lane",
+                "Pontiac",
+                "MI",
+                "48341",
+                Money.Usd(350_000),
+                OccupancyType.PrimaryResidence),
+            createdUtc.AddMinutes(2));
+        loan.UpdateLoanTerms(Money.Usd(275_000), LoanPurpose.Purchase, 6.875m, 360, createdUtc.AddMinutes(3));
+
+        return loan;
     }
 }

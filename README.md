@@ -16,6 +16,7 @@ The current implementation establishes:
 - SQL Server persistence with EF Core migrations.
 - ASP.NET Core Identity with JWT authentication and role policies.
 - Health endpoints for liveness and SQL readiness.
+- Versioned loan workflow APIs for draft intake, updates, submission, role-based transitions, history, and deterministic list views.
 
 ## Target stack
 
@@ -68,7 +69,15 @@ Useful endpoints:
 - `GET /health/ready`
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/me`
+- `POST /api/v1/loans`
+- `GET /api/v1/loans?page=&pageSize=&search=&status=`
+- `GET /api/v1/loans/{id}`
+- `PUT /api/v1/loans/{id}`
+- `POST /api/v1/loans/{id}/transitions`
+- `GET /api/v1/loans/{id}/history`
 - `GET /openapi/v1.json` in Development
+
+Loan workflow security is enforced in the API/application layer today: users only query loans visible to their role, cross-owner access is hidden with `404`, visible-but-disallowed actions return `403`, and stale row versions return `409 Conflict`. SQL Server row-level security is a possible future hardening step, but it is intentionally outside the current MVP slice.
 
 Frontend scaffold:
 

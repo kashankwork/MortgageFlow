@@ -52,6 +52,9 @@ public sealed class MortgageFlowDbContext : IdentityDbContext<ApplicationUser, I
             loan.Property(x => x.AssigneeId);
             loan.Property(x => x.Status).HasConversion<string>().HasMaxLength(40).IsRequired();
             loan.Property(x => x.BusinessPriority).HasConversion<string>().HasMaxLength(20).IsRequired();
+            loan.Property(x => x.LoanPurpose).HasConversion<string>().HasMaxLength(20);
+            loan.Property(x => x.InterestRatePercent).HasColumnType("decimal(5,3)");
+            loan.Property(x => x.TermMonths);
             loan.Property(x => x.CreatedUtc).IsRequired();
             loan.Property(x => x.UpdatedUtc).IsRequired();
             loan.Property(x => x.SubmittedUtc);
@@ -80,6 +83,7 @@ public sealed class MortgageFlowDbContext : IdentityDbContext<ApplicationUser, I
                 property.Property(x => x.City).HasMaxLength(120);
                 property.Property(x => x.State).HasMaxLength(2);
                 property.Property(x => x.PostalCode).HasMaxLength(20);
+                property.Property(x => x.OccupancyType).HasConversion<string>().HasMaxLength(40);
                 property.OwnsOne(x => x.EstimatedValue, money =>
                 {
                     money.Property(x => x.Amount).HasColumnName("PropertyEstimatedValue").HasColumnType("decimal(18,2)");

@@ -9,15 +9,23 @@ public sealed class Property
         State = string.Empty;
         PostalCode = string.Empty;
         EstimatedValue = Money.Usd(0);
+        OccupancyType = OccupancyType.PrimaryResidence;
     }
 
-    private Property(string streetAddress, string city, string state, string postalCode, Money estimatedValue)
+    private Property(
+        string streetAddress,
+        string city,
+        string state,
+        string postalCode,
+        Money estimatedValue,
+        OccupancyType occupancyType)
     {
         StreetAddress = streetAddress;
         City = city;
         State = state;
         PostalCode = postalCode;
         EstimatedValue = estimatedValue;
+        OccupancyType = occupancyType;
     }
 
     public string StreetAddress { get; private set; }
@@ -30,12 +38,15 @@ public sealed class Property
 
     public Money EstimatedValue { get; private set; }
 
+    public OccupancyType OccupancyType { get; private set; }
+
     public static Property Create(
         string streetAddress,
         string city,
         string state,
         string postalCode,
-        Money estimatedValue)
+        Money estimatedValue,
+        OccupancyType occupancyType = OccupancyType.PrimaryResidence)
     {
         if (string.IsNullOrWhiteSpace(streetAddress))
         {
@@ -62,6 +73,7 @@ public sealed class Property
             city.Trim(),
             state.Trim().ToUpperInvariant(),
             postalCode.Trim(),
-            estimatedValue);
+            estimatedValue,
+            occupancyType);
     }
 }

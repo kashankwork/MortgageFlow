@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MortgageFlow.Application.Authentication;
+using MortgageFlow.Application.Loans;
 using MortgageFlow.Infrastructure.Authentication;
 using MortgageFlow.Infrastructure.Identity;
+using MortgageFlow.Infrastructure.Loans;
 using MortgageFlow.Infrastructure.Persistence;
 
 namespace MortgageFlow.Infrastructure;
@@ -33,6 +35,7 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<MortgageFlowDbContext>();
 
         services.AddScoped<IAuthenticationService, AuthService>();
+        services.AddScoped<ILoanWorkflowService, EfLoanWorkflowService>();
         services.AddScoped<DevelopmentDataSeeder>();
 
         return services;
