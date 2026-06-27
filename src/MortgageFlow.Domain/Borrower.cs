@@ -2,6 +2,13 @@ namespace MortgageFlow.Domain;
 
 public sealed class Borrower
 {
+    private Borrower()
+    {
+        FullName = string.Empty;
+        Email = string.Empty;
+        AnnualIncome = Money.Usd(0);
+    }
+
     private Borrower(string fullName, string email, Money annualIncome)
     {
         FullName = fullName;

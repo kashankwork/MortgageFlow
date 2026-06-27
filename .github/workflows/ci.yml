@@ -6,12 +6,27 @@ on:
     branches:
       - main
       - master
-      - codex/**
+      - feature/**
 
 jobs:
   backend:
     name: Backend build and tests
     runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_PID: Developer
+          MSSQL_SA_PASSWORD: MortgageFlow_${{ github.run_id }}_CI!
+        ports:
+          - 14333:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'MortgageFlow_${{ github.run_id }}_CI!' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'MortgageFlow_${{ github.run_id }}_CI!' -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+          --health-start-period 30s
 
     steps:
       - name: Checkout
@@ -25,6 +40,13 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Verify Domain stays framework independent
+        run: |
+          if grep -R "Microsoft.EntityFrameworkCore\|Microsoft.AspNetCore" src/MortgageFlow.Domain; then
+            echo "Domain must not reference EF Core or ASP.NET Core."
+            exit 1
+          fi
+
       - name: Format check
         run: dotnet format --verify-no-changes
 
@@ -33,3 +55,5 @@ jobs:
 
       - name: Test
         run: dotnet test --configuration Release --no-build
+        env:
+          MORTGAGEFLOW_SQL_PASSWORD: MortgageFlow_${{ github.run_id }}_CI!

@@ -4,12 +4,17 @@ namespace MortgageFlow.Domain;
 
 public sealed partial record LoanNumber
 {
+    private LoanNumber()
+    {
+        Value = string.Empty;
+    }
+
     private LoanNumber(string value)
     {
         Value = value;
     }
 
-    public string Value { get; }
+    public string Value { get; private init; }
 
     public static LoanNumber Create(string value)
     {

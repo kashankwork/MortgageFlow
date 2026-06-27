@@ -2,6 +2,15 @@ namespace MortgageFlow.Domain;
 
 public sealed class Property
 {
+    private Property()
+    {
+        StreetAddress = string.Empty;
+        City = string.Empty;
+        State = string.Empty;
+        PostalCode = string.Empty;
+        EstimatedValue = Money.Usd(0);
+    }
+
     private Property(string streetAddress, string city, string state, string postalCode, Money estimatedValue)
     {
         StreetAddress = streetAddress;

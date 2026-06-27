@@ -21,6 +21,6 @@ MortgageFlow is a role-based mortgage workflow and intelligent assignment platfo
 6. Operations: integration tests, CI quality gates, Docker, logging, and health.
 7. Portfolio polish: README, diagrams, screenshots, demo, and interview preparation.
 
-## Foundation boundary
+## Current milestone boundary
 
-The foundation includes a clean solution, React scaffold, repository standards, ADRs, pure domain behavior, tests, and backend CI. It does not include persistence, authentication, or product UI.
+The current milestone includes a clean solution, React scaffold, repository standards, ADRs, pure domain behavior, SQL persistence, authentication, role policies, health checks, tests, and backend CI. It does not include loan CRUD, workflow API endpoints, assignment, or product UI.

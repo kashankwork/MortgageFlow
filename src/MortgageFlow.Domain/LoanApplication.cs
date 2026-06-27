@@ -4,6 +4,12 @@ public sealed class LoanApplication
 {
     private readonly List<LoanStatusChange> _statusHistory = [];
 
+    private LoanApplication()
+    {
+        LoanNumber = LoanNumber.Create("MF-000000");
+        RequestedAmount = Money.Usd(0);
+    }
+
     private LoanApplication(
         LoanNumber loanNumber,
         Guid brokerId,
@@ -20,11 +26,11 @@ public sealed class LoanApplication
         UpdatedUtc = CreatedUtc;
     }
 
-    public Guid Id { get; }
+    public Guid Id { get; private set; }
 
-    public LoanNumber LoanNumber { get; }
+    public LoanNumber LoanNumber { get; private set; }
 
-    public Guid BrokerId { get; }
+    public Guid BrokerId { get; private set; }
 
     public Guid? AssigneeId { get; private set; }
 
@@ -38,7 +44,7 @@ public sealed class LoanApplication
 
     public Property? Property { get; private set; }
 
-    public DateTime CreatedUtc { get; }
+    public DateTime CreatedUtc { get; private set; }
 
     public DateTime UpdatedUtc { get; private set; }
 
