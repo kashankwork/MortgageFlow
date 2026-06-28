@@ -137,6 +137,13 @@ public sealed class LoanApplication
         UpdatedUtc = utc;
     }
 
+    public void SetBusinessPriority(BusinessPriority businessPriority, DateTime changedUtc)
+    {
+        var utc = RequireChronologicalUtc(changedUtc, nameof(changedUtc));
+        BusinessPriority = businessPriority;
+        UpdatedUtc = utc;
+    }
+
     public void TransitionTo(LoanStatus nextStatus, Guid actorId, string? reason, DateTime changedUtc)
     {
         if (actorId == Guid.Empty)

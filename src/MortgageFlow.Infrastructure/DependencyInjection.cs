@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MortgageFlow.Application.Assignments;
 using MortgageFlow.Application.Authentication;
 using MortgageFlow.Application.Loans;
+using MortgageFlow.Infrastructure.Assignments;
 using MortgageFlow.Infrastructure.Authentication;
 using MortgageFlow.Infrastructure.Identity;
 using MortgageFlow.Infrastructure.Loans;
@@ -19,6 +21,7 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required.");
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<AssignmentOptions>(configuration.GetSection(AssignmentOptions.SectionName));
 
         services.AddDbContext<MortgageFlowDbContext>(options => options.UseSqlServer(connectionString));
 
@@ -36,6 +39,13 @@ public static class DependencyInjection
 
         services.AddScoped<IAuthenticationService, AuthService>();
         services.AddScoped<ILoanWorkflowService, EfLoanWorkflowService>();
+        services.AddScoped<ILoanPriorityCalculator, LoanPriorityCalculator>();
+        services.AddScoped<IEmployeeEligibilityPolicy, EmployeeEligibilityPolicy>();
+        services.AddScoped<IEmployeeWorkloadCalculator, EmployeeWorkloadCalculator>();
+        services.AddScoped<IRoundRobinTieBreaker, EfRoundRobinTieBreaker>();
+        services.AddScoped<IAssignmentStrategy, AssignmentStrategy>();
+        services.AddScoped<ILoanAssignmentService, EfLoanAssignmentService>();
+        services.AddScoped<IQueueService, EfQueueService>();
         services.AddScoped<DevelopmentDataSeeder>();
 
         return services;

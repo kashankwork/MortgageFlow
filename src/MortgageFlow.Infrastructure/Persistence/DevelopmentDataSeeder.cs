@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MortgageFlow.Application.Authentication;
 using MortgageFlow.Domain;
 using MortgageFlow.Infrastructure.Identity;
+using MortgageFlow.Infrastructure.Persistence.Entities;
 
 namespace MortgageFlow.Infrastructure.Persistence;
 
@@ -50,15 +51,55 @@ public sealed class DevelopmentDataSeeder
             }
         }
 
-        await UpsertSyntheticUserAsync("broker@example.test", "Synthetic Broker", MortgageFlowRoles.Broker, demoPassword);
-        await UpsertSyntheticUserAsync("processor@example.test", "Synthetic Processor", MortgageFlowRoles.Processor, demoPassword);
-        await UpsertSyntheticUserAsync("underwriter@example.test", "Synthetic Underwriter", MortgageFlowRoles.Underwriter, demoPassword);
-        await UpsertSyntheticUserAsync("teamlead@example.test", "Synthetic Team Lead", MortgageFlowRoles.TeamLead, demoPassword);
+        var broker = await UpsertSyntheticUserAsync(
+            "broker@example.test",
+            "Synthetic Broker",
+            MortgageFlowRoles.Broker,
+            demoPassword);
+        var processor = await UpsertSyntheticUserAsync(
+            "processor@example.test",
+            "Synthetic Processor",
+            MortgageFlowRoles.Processor,
+            demoPassword,
+            capacityPoints: 8);
+        var processor2 = await UpsertSyntheticUserAsync(
+            "processor.secondary@example.test",
+            "Synthetic Processor Secondary",
+            MortgageFlowRoles.Processor,
+            demoPassword,
+            capacityPoints: 12);
+        var underwriter = await UpsertSyntheticUserAsync(
+            "underwriter@example.test",
+            "Synthetic Underwriter",
+            MortgageFlowRoles.Underwriter,
+            demoPassword,
+            capacityPoints: 8);
+        var underwriter2 = await UpsertSyntheticUserAsync(
+            "underwriter.secondary@example.test",
+            "Synthetic Underwriter Secondary",
+            MortgageFlowRoles.Underwriter,
+            demoPassword,
+            capacityPoints: 10);
+        await UpsertSyntheticUserAsync(
+            "teamlead@example.test",
+            "Synthetic Team Lead",
+            MortgageFlowRoles.TeamLead,
+            demoPassword);
 
-        await SeedSyntheticWorkflowLoansAsync();
+        await SeedSkillAsync(processor.Id, "processing");
+        await SeedSkillAsync(processor2.Id, "processing");
+        await SeedSkillAsync(underwriter.Id, "underwriting");
+        await SeedSkillAsync(underwriter2.Id, "underwriting");
+
+        await SeedSyntheticWorkflowLoansAsync(broker.Id, processor.Id, processor2.Id, underwriter.Id, underwriter2.Id);
     }
 
-    private async Task UpsertSyntheticUserAsync(string email, string fullName, string role, string password)
+    private async Task<ApplicationUser> UpsertSyntheticUserAsync(
+        string email,
+        string fullName,
+        string role,
+        string password,
+        int capacityPoints = 8)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user is null)
@@ -74,7 +115,7 @@ public sealed class DevelopmentDataSeeder
                 TeamId = DemoTeamId,
                 IsActive = true,
                 IsAvailable = true,
-                CapacityPoints = 8
+                CapacityPoints = capacityPoints
             };
 
             var createResult = await _userManager.CreateAsync(user, password);
@@ -82,6 +123,15 @@ public sealed class DevelopmentDataSeeder
             {
                 throw new InvalidOperationException($"Could not seed synthetic user {email}: {FormatErrors(createResult)}");
             }
+        }
+        else
+        {
+            user.FullName = fullName;
+            user.TeamId = DemoTeamId;
+            user.IsActive = true;
+            user.IsAvailable = true;
+            user.CapacityPoints = capacityPoints;
+            await _userManager.UpdateAsync(user);
         }
 
         if (!await _userManager.IsInRoleAsync(user, role))
@@ -92,6 +142,8 @@ public sealed class DevelopmentDataSeeder
                 throw new InvalidOperationException($"Could not assign role {role} to {email}: {FormatErrors(roleResult)}");
             }
         }
+
+        return user;
     }
 
     private static string FormatErrors(IdentityResult result)
@@ -99,46 +151,129 @@ public sealed class DevelopmentDataSeeder
         return string.Join("; ", result.Errors.Select(error => error.Description));
     }
 
-    private async Task SeedSyntheticWorkflowLoansAsync()
+    private async Task SeedSkillAsync(Guid userId, string skillTag)
     {
-        var submittedDemoLoanNumber = LoanNumber.Create("MF-900001");
-        if (await _dbContext.LoanApplications
-            .AnyAsync(loan => loan.LoanNumber == submittedDemoLoanNumber))
+        var exists = await _dbContext.EmployeeSkills.AnyAsync(skill =>
+            skill.UserId == userId && skill.SkillTag == skillTag);
+        if (exists)
         {
             return;
         }
 
-        var broker = await _userManager.FindByEmailAsync("broker@example.test")
-            ?? throw new InvalidOperationException("Synthetic broker was not seeded.");
-        var processor = await _userManager.FindByEmailAsync("processor@example.test")
-            ?? throw new InvalidOperationException("Synthetic processor was not seeded.");
-        var underwriter = await _userManager.FindByEmailAsync("underwriter@example.test")
-            ?? throw new InvalidOperationException("Synthetic underwriter was not seeded.");
+        _dbContext.EmployeeSkills.Add(new EmployeeSkill
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SkillTag = skillTag
+        });
+        await _dbContext.SaveChangesAsync();
+    }
 
+    private async Task SeedSyntheticWorkflowLoansAsync(
+        Guid brokerId,
+        Guid processorId,
+        Guid processor2Id,
+        Guid underwriterId,
+        Guid underwriter2Id)
+    {
         // Seed timelines sit safely in the past so manual workflow actions remain chronological.
         var now = DateTime.UtcNow.AddHours(-2);
-        var submitted = CreateCompleteSyntheticLoan(
-            submittedDemoLoanNumber,
-            broker.Id,
+        var submitted = await SeedLoanIfMissingAsync(
+            "MF-900001",
+            brokerId,
             now,
             "Synthetic Submitted Borrower",
-            "submitted.borrower@example.test");
-        submitted.TransitionTo(LoanStatus.Submitted, broker.Id, null, now.AddMinutes(4));
-        submitted.AssignTo(processor.Id, now.AddMinutes(5));
-
-        var underwriting = CreateCompleteSyntheticLoan(
-            LoanNumber.Create("MF-900002"),
-            broker.Id,
+            "submitted.borrower@example.test",
+            loan =>
+            {
+                loan.TransitionTo(LoanStatus.Submitted, brokerId, null, now.AddMinutes(4));
+                loan.AssignTo(processorId, now.AddMinutes(5));
+            });
+        var underwriting = await SeedLoanIfMissingAsync(
+            "MF-900002",
+            brokerId,
             now.AddMinutes(10),
             "Synthetic Underwriting Borrower",
-            "underwriting.borrower@example.test");
-        underwriting.TransitionTo(LoanStatus.Submitted, broker.Id, null, now.AddMinutes(14));
-        underwriting.AssignTo(processor.Id, now.AddMinutes(15));
-        underwriting.TransitionTo(LoanStatus.Processing, processor.Id, null, now.AddMinutes(16));
-        underwriting.TransitionTo(LoanStatus.Underwriting, processor.Id, "Synthetic checklist complete.", now.AddMinutes(17));
-        underwriting.AssignTo(underwriter.Id, now.AddMinutes(18));
+            "underwriting.borrower@example.test",
+            loan =>
+            {
+                loan.TransitionTo(LoanStatus.Submitted, brokerId, null, now.AddMinutes(14));
+                loan.AssignTo(processorId, now.AddMinutes(15));
+                loan.TransitionTo(LoanStatus.Processing, processorId, null, now.AddMinutes(16));
+                loan.TransitionTo(LoanStatus.Underwriting, processorId, "Synthetic checklist complete.", now.AddMinutes(17));
+                loan.AssignTo(underwriterId, now.AddMinutes(18));
+            });
+        var unassignedSubmitted = await SeedLoanIfMissingAsync(
+            "MF-900003",
+            brokerId,
+            now.AddMinutes(20),
+            "Synthetic Queue Borrower",
+            "queue.borrower@example.test",
+            loan => loan.TransitionTo(LoanStatus.Submitted, brokerId, null, now.AddMinutes(24)));
+        await SeedLoanIfMissingAsync(
+            "MF-900004",
+            brokerId,
+            now.AddMinutes(30),
+            "Synthetic Underwriting Queue Borrower",
+            "underwriting.queue.borrower@example.test",
+            loan =>
+            {
+                loan.TransitionTo(LoanStatus.Submitted, brokerId, null, now.AddMinutes(34));
+                loan.TransitionTo(LoanStatus.Processing, processor2Id, null, now.AddMinutes(35));
+                loan.TransitionTo(LoanStatus.Underwriting, processor2Id, "Synthetic checklist complete.", now.AddMinutes(36));
+            });
 
-        _dbContext.LoanApplications.AddRange(submitted, underwriting);
+        await _dbContext.SaveChangesAsync();
+
+        await SeedTaskIfMissingAsync(submitted.Id, processorId, BusinessPriority.Normal, now.AddDays(1));
+        await SeedTaskIfMissingAsync(underwriting.Id, underwriterId, BusinessPriority.High, now.AddDays(2));
+        await SeedTaskIfMissingAsync(unassignedSubmitted.Id, processorId, BusinessPriority.Urgent, DateTime.UtcNow.AddHours(12));
+        await SeedTaskIfMissingAsync(unassignedSubmitted.Id, processor2Id, BusinessPriority.Normal, DateTime.UtcNow.AddDays(3));
+    }
+
+    private async Task<LoanApplication> SeedLoanIfMissingAsync(
+        string loanNumberValue,
+        Guid brokerId,
+        DateTime createdUtc,
+        string borrowerName,
+        string borrowerEmail,
+        Action<LoanApplication> configure)
+    {
+        var loanNumber = LoanNumber.Create(loanNumberValue);
+        var existing = await _dbContext.LoanApplications.SingleOrDefaultAsync(loan => loan.LoanNumber == loanNumber);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        var loan = CreateCompleteSyntheticLoan(loanNumber, brokerId, createdUtc, borrowerName, borrowerEmail);
+        configure(loan);
+        _dbContext.LoanApplications.Add(loan);
+        return loan;
+    }
+
+    private async Task SeedTaskIfMissingAsync(
+        Guid loanId,
+        Guid assigneeId,
+        BusinessPriority priority,
+        DateTime dueUtc)
+    {
+        var exists = await _dbContext.WorkflowTasks.AnyAsync(task =>
+            task.LoanApplicationId == loanId && task.AssigneeId == assigneeId && task.Priority == priority);
+        if (exists)
+        {
+            return;
+        }
+
+        _dbContext.WorkflowTasks.Add(new WorkflowTask
+        {
+            Id = Guid.NewGuid(),
+            LoanApplicationId = loanId,
+            AssigneeId = assigneeId,
+            Priority = priority,
+            DueUtc = dueUtc,
+            IsComplete = false
+        });
         await _dbContext.SaveChangesAsync();
     }
 

@@ -17,6 +17,7 @@ The current implementation establishes:
 - ASP.NET Core Identity with JWT authentication and role policies.
 - Health endpoints for liveness and SQL readiness.
 - Versioned loan workflow APIs for draft intake, updates, submission, role-based transitions, history, and deterministic list views.
+- Intelligent assignment APIs for priority scoring, least-loaded eligible employee selection, Team Lead reassignment, and queue review.
 
 ## Target stack
 
@@ -75,9 +76,14 @@ Useful endpoints:
 - `PUT /api/v1/loans/{id}`
 - `POST /api/v1/loans/{id}/transitions`
 - `GET /api/v1/loans/{id}/history`
+- `POST /api/v1/loans/{id}/assign`
+- `POST /api/v1/loans/{id}/reassign`
+- `PATCH /api/v1/loans/{id}/priority`
+- `GET /api/v1/queues/me`
+- `GET /api/v1/queues/team`
 - `GET /openapi/v1.json` in Development
 
-Loan workflow security is enforced in the API/application layer today: users only query loans visible to their role, cross-owner access is hidden with `404`, visible-but-disallowed actions return `403`, and stale row versions return `409 Conflict`. SQL Server row-level security is a possible future hardening step, but it is intentionally outside the current MVP slice.
+Loan workflow and assignment security are enforced in the API/application layer today: users only query loans visible to their role, Team Lead controls assignment actions, visible-but-disallowed actions return `403`, and stale row versions return `409 Conflict`. SQL Server row-level security is a possible future hardening step, but it is intentionally outside the current MVP slice.
 
 Frontend scaffold:
 
