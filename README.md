@@ -2,7 +2,7 @@
 
 MortgageFlow is a mortgage workflow simulation.
 
-It is scoped as an educational project. It does not claim to reproduce internal systems, proprietary workflows, or business rules.
+It is an educational project. It does not claim to reproduce internal systems, proprietary workflows, or business rules.
 
 ## Current foundation
 
