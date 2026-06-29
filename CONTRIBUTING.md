@@ -1,11 +1,11 @@
 # Contributing
 
-This project is being built as a focused interview MVP.
+This project is being built as a focused portfolio MVP.
 
 ## Workflow
 
 1. Work one focused slice at a time.
-2. Keep changes small enough to explain in an interview.
+2. Keep changes small enough to explain in a short technical walkthrough.
 3. Add tests for important business rules before expanding scope.
 4. Do not add deferred technologies unless the MVP is already complete.
 
