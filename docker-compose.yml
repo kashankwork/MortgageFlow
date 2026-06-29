@@ -8,7 +8,7 @@ services:
       MSSQL_PID: Developer
       MSSQL_SA_PASSWORD: ${MORTGAGEFLOW_SQL_PASSWORD:?Set MORTGAGEFLOW_SQL_PASSWORD in your shell or .env file}
     ports:
-      - "14333:1433"
+      - "127.0.0.1:14333:1433"
     volumes:
       - mortgageflow-sqlserver-data:/var/opt/mssql
     healthcheck:
@@ -40,7 +40,7 @@ services:
       Seed__DemoPassword: ${Seed__DemoPassword:?Set Seed__DemoPassword in your shell or .env file}
       Database__ApplyMigrationsOnStartup: "true"
     ports:
-      - "5123:8080"
+      - "127.0.0.1:5123:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/ready || exit 1"]
       interval: 10s
@@ -57,7 +57,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "5173:8080"
+      - "127.0.0.1:5173:8080"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/ >/dev/null || exit 1"]
       interval: 10s
