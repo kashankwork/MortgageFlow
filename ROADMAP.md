@@ -23,4 +23,4 @@ MortgageFlow is a role-based mortgage workflow and intelligent assignment platfo
 
 ## Current milestone boundary
 
-The current milestone includes a clean solution, React scaffold, repository standards, ADRs, pure domain behavior, SQL persistence, authentication, role policies, health checks, tests, and backend CI. It does not include loan CRUD, workflow API endpoints, assignment, or product UI.
+The current milestone includes a clean solution, React scaffold, repository standards, ADRs, pure domain behavior, SQL persistence, authentication, role policies, health checks, backend CI, loan workflow APIs, assignment logic, queue APIs, and tests. It does not include product UI screens, document upload, Kafka, Redis, microservices, or cloud deployment.

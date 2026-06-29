@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MortgageFlow.Application.Assignments;
 using MortgageFlow.Application.Loans;
 using MortgageFlow.Domain;
 
@@ -10,10 +11,14 @@ namespace MortgageFlow.Api.Loans;
 [Route("api/v1/loans")]
 public sealed class LoansController : ControllerBase
 {
+    private readonly ILoanAssignmentService _loanAssignmentService;
     private readonly ILoanWorkflowService _loanWorkflowService;
 
-    public LoansController(ILoanWorkflowService loanWorkflowService)
+    public LoansController(
+        ILoanAssignmentService loanAssignmentService,
+        ILoanWorkflowService loanWorkflowService)
     {
+        _loanAssignmentService = loanAssignmentService;
         _loanWorkflowService = loanWorkflowService;
     }
 
@@ -64,6 +69,33 @@ public sealed class LoansController : ControllerBase
     public async Task<IActionResult> History(Guid id, CancellationToken cancellationToken)
     {
         var result = await _loanWorkflowService.GetHistoryAsync(id, cancellationToken);
+        return ToActionResult(result);
+    }
+
+    [HttpPost("{id:guid}/assign")]
+    public async Task<IActionResult> Assign(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _loanAssignmentService.AssignAutomaticallyAsync(id, cancellationToken);
+        return ToActionResult(result);
+    }
+
+    [HttpPost("{id:guid}/reassign")]
+    public async Task<IActionResult> Reassign(
+        Guid id,
+        ManualReassignmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _loanAssignmentService.ReassignAsync(id, request, cancellationToken);
+        return ToActionResult(result);
+    }
+
+    [HttpPatch("{id:guid}/priority")]
+    public async Task<IActionResult> UpdatePriority(
+        Guid id,
+        PriorityUpdateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _loanAssignmentService.UpdatePriorityAsync(id, request, cancellationToken);
         return ToActionResult(result);
     }
 
