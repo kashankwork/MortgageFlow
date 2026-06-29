@@ -186,14 +186,14 @@ GitHub Actions runs backend build/tests with SQL Server, frontend lint/typecheck
 - Passwords, JWT signing keys, SQL passwords, connection strings, and local `.env` values stay outside Git.
 - Audit summaries avoid borrower names, emails, income, and property details.
 - Request logs include safe correlation metadata, not tokens or sensitive loan details.
-- Role visibility is enforced in application queries and services. SQL Server row-level security is a documented future hardening option, not part of this MVP.
+- Role visibility is enforced in application queries and services. SQL Server row-level security is a documented future hardening option, not part of the current version.
 
 ## Tradeoffs
 
 - Modular monolith over microservices: simpler local execution, easier transaction boundaries, and stronger focus on business workflow.
 - SQL Server required instead of SQLite substitution: heavier locally, but better proof for EF Core mappings, migrations, concurrency, and relational constraints.
 - In-memory frontend token storage: safer than persistent browser storage for this demo, with the tradeoff that refresh requires signing in again.
-- No document upload, external credit integrations, Kafka, Redis, cloud deployment, or advanced dashboarding: those are intentionally deferred to keep the MVP complete and explainable.
+- No document upload, external credit integrations, Kafka, Redis, cloud deployment, or advanced dashboarding: those are intentionally deferred to keep the current scope complete and explainable.
 
 ## Future work
 

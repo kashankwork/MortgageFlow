@@ -1,6 +1,6 @@
 ---
-name: Feature slice
-about: Track one focused MortgageFlow MVP slice
+name: Feature request
+about: Track one focused MortgageFlow enhancement
 title: "[Feature] "
 labels: enhancement
 assignees: ""

@@ -11,6 +11,6 @@
 
 ## Scope check
 
-- [ ] This change stays within the current milestone.
+- [ ] This change stays within the current product scope.
 - [ ] Deferred technologies remain deferred.
 - [ ] Security/data-boundary impact is documented.

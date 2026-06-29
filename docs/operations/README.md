@@ -1,6 +1,6 @@
 # Operations Notes
 
-These commands are for local review and operation. All data is synthetic.
+These commands run MortgageFlow locally with synthetic data.
 
 ## Full Docker startup
 
@@ -18,7 +18,7 @@ docker compose up -d --build
 docker compose ps
 ```
 
-`docker compose config --quiet` validates the file without printing resolved values. Plain `docker compose config` expands local environment values, so do not paste that output into public issues, docs, or screenshots.
+`docker compose config --quiet` validates the file without printing resolved values. Plain `docker compose config` expands local environment values, so avoid sharing that output.
 
 Open the frontend:
 
@@ -55,7 +55,7 @@ curl http://localhost:5123/api/v1/queues/team \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-Treat the token like a temporary password: use it locally, but do not paste it into screenshots, issues, or docs.
+Treat the token like a temporary password.
 
 ## Reset and reseed local data
 
@@ -74,7 +74,3 @@ The `-v` flag deletes only the local Docker SQL volume. It does not delete sourc
 - API health is not ready: wait for SQL Server to become healthy, then check `docker compose logs api`.
 - Frontend opens but login fails: verify API readiness and confirm the password comes from private `.env`, not source code.
 - Need to return to the previous code version: use Git to check out the previous commit or branch; do not edit generated Docker data manually.
-
-## Pre-public release hardening
-
-Before making the repository public, protect the default branch and require pull requests plus passing CI checks before merge. Keep local `.env`, generated containers, and SQL volumes private.

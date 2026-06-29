@@ -15,7 +15,7 @@ All notable release-ready changes are summarized here.
 - SQL-backed integration tests, frontend tests, package audit/signature checks, Docker image builds, and GitHub Actions quality gates.
 - Multi-container Docker Compose stack for SQL Server, API, and frontend.
 - Correlation-aware request logging and audit correlation IDs.
-- Public documentation, architecture diagrams, demo guide, screenshot index, operations notes, and release notes.
+- Public documentation, architecture diagrams, product walkthrough, screenshot index, operations notes, and release notes.
 
 ### Security and data boundaries
 
@@ -29,4 +29,4 @@ All notable release-ready changes are summarized here.
 - SQL Server row-level security is not enabled; visibility is enforced in application queries and services.
 - The frontend stores the access token in React memory only, so browser refresh requires signing in again.
 - Deployment, document upload, administrator management screens, and external integrations are intentionally out of scope.
-- `v1.0.0` should be tagged only after the final release-packaging PR is merged and CI is green.
+- `v1.0.0` can be tagged after the release state is reviewed and CI is green.
