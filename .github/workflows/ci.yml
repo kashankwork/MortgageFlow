@@ -54,6 +54,71 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --configuration Release --no-build
+        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage"
         env:
           MORTGAGEFLOW_SQL_PASSWORD: MortgageFlow_${{ github.run_id }}_CI!
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage
+          path: tests/**/TestResults/**/*.xml
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend quality gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.17.0
+          cache: npm
+          cache-dependency-path: src/mortgageflow-web/package-lock.json
+
+      - name: Install
+        working-directory: src/mortgageflow-web
+        run: npm ci
+
+      - name: Lint
+        working-directory: src/mortgageflow-web
+        run: npm run lint
+
+      - name: Typecheck
+        working-directory: src/mortgageflow-web
+        run: npm run typecheck
+
+      - name: Test
+        working-directory: src/mortgageflow-web
+        run: npm run test:run
+
+      - name: Build
+        working-directory: src/mortgageflow-web
+        run: npm run build
+
+      - name: Audit
+        working-directory: src/mortgageflow-web
+        run: npm audit --audit-level=moderate
+
+      - name: Audit signatures
+        working-directory: src/mortgageflow-web
+        run: npm audit signatures
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build API image
+        run: docker build --file src/MortgageFlow.Api/Dockerfile --tag mortgageflow-api:ci .
+
+      - name: Build frontend image
+        run: docker build --file src/mortgageflow-web/Dockerfile --tag mortgageflow-web:ci .

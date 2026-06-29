@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MortgageFlow.Application.Assignments;
 using MortgageFlow.Application.Authentication;
+using MortgageFlow.Application.Diagnostics;
 using MortgageFlow.Application.Loans;
 using MortgageFlow.Application.Users;
 using MortgageFlow.Domain;
@@ -19,6 +20,7 @@ public sealed class EfLoanAssignmentService : ILoanAssignmentService
     private readonly IAssignmentStrategy _assignmentStrategy;
     private readonly IEmployeeEligibilityPolicy _eligibilityPolicy;
     private readonly IEmployeeWorkloadCalculator _workloadCalculator;
+    private readonly ICorrelationContext _correlationContext;
     private readonly AssignmentOptions _options;
 
     public EfLoanAssignmentService(
@@ -28,6 +30,7 @@ public sealed class EfLoanAssignmentService : ILoanAssignmentService
         IAssignmentStrategy assignmentStrategy,
         IEmployeeEligibilityPolicy eligibilityPolicy,
         IEmployeeWorkloadCalculator workloadCalculator,
+        ICorrelationContext correlationContext,
         IOptions<AssignmentOptions> options)
     {
         _dbContext = dbContext;
@@ -36,6 +39,7 @@ public sealed class EfLoanAssignmentService : ILoanAssignmentService
         _assignmentStrategy = assignmentStrategy;
         _eligibilityPolicy = eligibilityPolicy;
         _workloadCalculator = workloadCalculator;
+        _correlationContext = correlationContext;
         _options = options.Value;
     }
 
@@ -415,7 +419,7 @@ public sealed class EfLoanAssignmentService : ILoanAssignmentService
             EntityType = nameof(LoanApplication),
             EntityId = loanId.ToString(),
             Summary = summary,
-            CorrelationId = string.Empty,
+            CorrelationId = _correlationContext.CorrelationId,
             CreatedUtc = DateTime.UtcNow
         });
     }

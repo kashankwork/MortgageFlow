@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MortgageFlow.Application.Authentication;
+using MortgageFlow.Application.Diagnostics;
 using MortgageFlow.Application.Loans;
 using MortgageFlow.Application.Users;
 using MortgageFlow.Domain;
@@ -14,11 +15,16 @@ public sealed class EfLoanWorkflowService : ILoanWorkflowService
 
     private readonly MortgageFlowDbContext _dbContext;
     private readonly ICurrentUser _currentUser;
+    private readonly ICorrelationContext _correlationContext;
 
-    public EfLoanWorkflowService(MortgageFlowDbContext dbContext, ICurrentUser currentUser)
+    public EfLoanWorkflowService(
+        MortgageFlowDbContext dbContext,
+        ICurrentUser currentUser,
+        ICorrelationContext correlationContext)
     {
         _dbContext = dbContext;
         _currentUser = currentUser;
+        _correlationContext = correlationContext;
     }
 
     public async Task<LoanActionResult<LoanDetailResponse>> CreateDraftAsync(
@@ -566,7 +572,7 @@ public sealed class EfLoanWorkflowService : ILoanWorkflowService
             EntityType = nameof(LoanApplication),
             EntityId = loanId.ToString(),
             Summary = summary,
-            CorrelationId = string.Empty,
+            CorrelationId = _correlationContext.CorrelationId,
             CreatedUtc = DateTime.UtcNow
         });
     }
