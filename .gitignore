@@ -20,4 +20,4 @@ build/
 *.suo
 *.log
 .DS_Store
-UWM_MortgageFlow_Execution_Plan.docx
+*MortgageFlow_Execution_Plan.docx

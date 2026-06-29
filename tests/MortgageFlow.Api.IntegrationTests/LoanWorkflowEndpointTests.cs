@@ -244,9 +244,9 @@ public sealed class LoanWorkflowEndpointTests : IClassFixture<MortgageFlowApiFac
             new BorrowerDto(borrowerName, $"{Guid.NewGuid():N}@example.test", 125_000),
             new PropertyDto(
                 "123 Synthetic Street",
-                "Pontiac",
+                "Birmingham",
                 "MI",
-                "48341",
+                "48009",
                 350_000,
                 OccupancyType.PrimaryResidence));
     }
@@ -262,9 +262,9 @@ public sealed class LoanWorkflowEndpointTests : IClassFixture<MortgageFlowApiFac
             new BorrowerDto(borrowerName, $"{Guid.NewGuid():N}@example.test", 130_000),
             new PropertyDto(
                 "456 Updated Street",
-                "Pontiac",
+                "Birmingham",
                 "MI",
-                "48341",
+                "48009",
                 360_000,
                 OccupancyType.PrimaryResidence));
     }
@@ -321,9 +321,9 @@ public sealed class LoanWorkflowEndpointTests : IClassFixture<MortgageFlowApiFac
         loan.AddProperty(
             Property.Create(
                 "789 Assigned Street",
-                "Pontiac",
+                "Birmingham",
                 "MI",
-                "48341",
+                "48009",
                 Money.Usd(350_000),
                 OccupancyType.PrimaryResidence),
             createdUtc.AddMinutes(2));

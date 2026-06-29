@@ -18,6 +18,8 @@ The current implementation establishes:
 - Health endpoints for liveness and SQL readiness.
 - Versioned loan workflow APIs for draft intake, updates, submission, role-based transitions, history, and deterministic list views.
 - Intelligent assignment APIs for priority scoring, least-loaded eligible employee selection, Team Lead reassignment, and queue review.
+- A role-based React interface for login, loan intake, details, queues, workflow actions, and assignment controls.
+- Docker Compose support for SQL Server, API, and frontend local review.
 
 ## Target stack
 
@@ -35,33 +37,46 @@ From the repository root:
 dotnet restore
 dotnet format --verify-no-changes
 dotnet build --configuration Release --no-restore
-dotnet test --configuration Release --no-build
+dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage"
 ```
 
-SQL-backed integration tests require a local SQL Server container:
+Frontend checks:
+
+```bash
+cd src/mortgageflow-web
+npm ci
+npm run lint
+npm run typecheck
+npm run test:run
+npm run build
+npm audit --audit-level=moderate
+npm audit signatures
+```
+
+## Local configuration
+
+Create a private `.env` file from placeholders:
 
 ```bash
 cp .env.example .env
-# Edit .env and choose a strong local-only SQL password.
-docker compose up -d
-
-export MORTGAGEFLOW_SQL_PASSWORD="<same value from .env>"
-dotnet test --configuration Release
 ```
 
-Apply the initial migration locally:
+Edit `.env` with local-only values. Do not commit `.env`.
+
+## Full Docker startup
+
+From the repository root:
 
 ```bash
-export ConnectionStrings__DefaultConnection="Server=127.0.0.1,14333;Database=MortgageFlow;User Id=sa;Password=<local password>;TrustServerCertificate=True;Encrypt=True"
-export Jwt__SigningKey="<at least 32 characters for local development>"
-export Seed__DemoPassword="<synthetic demo password>"
-dotnet ef database update --project src/MortgageFlow.Infrastructure --startup-project src/MortgageFlow.Api
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
 ```
 
-Run the API locally after setting configuration through user-secrets or environment variables:
+Open:
 
-```bash
-dotnet run --project src/MortgageFlow.Api
+```text
+http://localhost:5173
 ```
 
 Useful endpoints:
@@ -85,13 +100,34 @@ Useful endpoints:
 
 Loan workflow and assignment security are enforced in the API/application layer today: users only query loans visible to their role, Team Lead controls assignment actions, visible-but-disallowed actions return `403`, and stale row versions return `409 Conflict`. SQL Server row-level security is a possible future hardening step, but it is intentionally outside the current MVP slice.
 
-Frontend scaffold:
+## Local developer startup
+
+Terminal 1:
+
+```bash
+docker compose up -d sqlserver
+set -a
+source .env
+set +a
+dotnet run --project src/MortgageFlow.Api --launch-profile http
+```
+
+Terminal 2:
 
 ```bash
 cd src/mortgageflow-web
-npm install
-npm run build
+npm run dev
 ```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+## Operational notes
+
+See [docs/operations](docs/operations/README.md) for full-stack startup, smoke requests, reset/reseed commands, troubleshooting, rollback notes, and branch protection guidance.
 
 ## Scope discipline
 
