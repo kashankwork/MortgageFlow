@@ -90,6 +90,8 @@ docker compose up -d --build
 docker compose ps
 ```
 
+Published Compose ports bind to `127.0.0.1` so SQL Server, the API, and the frontend are reachable from the local machine only.
+
 Open the frontend:
 
 ```text
