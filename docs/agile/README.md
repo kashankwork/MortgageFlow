@@ -2,7 +2,7 @@
 
 ## Milestone
 
-MortgageFlow Interview MVP
+MortgageFlow Portfolio MVP
 
 ## Starter issues
 
@@ -12,10 +12,10 @@ MortgageFlow Interview MVP
 4. Assignment engine and queues.
 5. React demo flow.
 6. Docker, integration tests, health, and quality gates.
-7. Portfolio polish and interview package.
+7. Portfolio polish and release package.
 8. Add architecture diagrams and screenshots.
 9. Record demo script and walkthrough.
-10. Prepare resume bullets and STAR stories.
+10. Prepare public technical talking points.
 
 ## Board columns
 
