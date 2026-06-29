@@ -2,15 +2,20 @@ namespace MortgageFlow.Domain;
 
 public sealed record Money
 {
+    private Money()
+    {
+        Currency = "USD";
+    }
+
     private Money(decimal amount, string currency)
     {
         Amount = amount;
         Currency = currency;
     }
 
-    public decimal Amount { get; }
+    public decimal Amount { get; private init; }
 
-    public string Currency { get; }
+    public string Currency { get; private init; }
 
     public static Money Usd(decimal amount)
     {

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The project should map naturally to UWM-adjacent enterprise .NET expectations and prove SQL-backed application development.
+The project should map naturally to enterprise .NET expectations and prove SQL-backed application development.
 
 ## Decision
 

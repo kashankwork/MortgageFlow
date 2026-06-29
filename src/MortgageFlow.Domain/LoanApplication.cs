@@ -4,6 +4,12 @@ public sealed class LoanApplication
 {
     private readonly List<LoanStatusChange> _statusHistory = [];
 
+    private LoanApplication()
+    {
+        LoanNumber = LoanNumber.Create("MF-000000");
+        RequestedAmount = Money.Usd(0);
+    }
+
     private LoanApplication(
         LoanNumber loanNumber,
         Guid brokerId,
@@ -20,11 +26,11 @@ public sealed class LoanApplication
         UpdatedUtc = CreatedUtc;
     }
 
-    public Guid Id { get; }
+    public Guid Id { get; private set; }
 
-    public LoanNumber LoanNumber { get; }
+    public LoanNumber LoanNumber { get; private set; }
 
-    public Guid BrokerId { get; }
+    public Guid BrokerId { get; private set; }
 
     public Guid? AssigneeId { get; private set; }
 
@@ -34,11 +40,17 @@ public sealed class LoanApplication
 
     public Money RequestedAmount { get; private set; }
 
+    public LoanPurpose? LoanPurpose { get; private set; }
+
+    public decimal? InterestRatePercent { get; private set; }
+
+    public int? TermMonths { get; private set; }
+
     public Borrower? Borrower { get; private set; }
 
     public Property? Property { get; private set; }
 
-    public DateTime CreatedUtc { get; }
+    public DateTime CreatedUtc { get; private set; }
 
     public DateTime UpdatedUtc { get; private set; }
 
@@ -81,6 +93,57 @@ public sealed class LoanApplication
         UpdatedUtc = utc;
     }
 
+    public void UpdateLoanTerms(
+        Money requestedAmount,
+        LoanPurpose loanPurpose,
+        decimal interestRatePercent,
+        int termMonths,
+        DateTime changedUtc)
+    {
+        EnsureDraftIsEditable();
+
+        if (requestedAmount.Amount <= 0)
+        {
+            throw new DomainValidationException("Requested loan amount must be greater than zero.");
+        }
+
+        if (interestRatePercent <= 0 || interestRatePercent > 25)
+        {
+            throw new DomainValidationException("Interest rate must be greater than zero and no more than 25 percent.");
+        }
+
+        if (termMonths is < 60 or > 480)
+        {
+            throw new DomainValidationException("Loan term must be between 60 and 480 months.");
+        }
+
+        var utc = RequireChronologicalUtc(changedUtc, nameof(changedUtc));
+        RequestedAmount = requestedAmount;
+        LoanPurpose = loanPurpose;
+        InterestRatePercent = decimal.Round(interestRatePercent, 3);
+        TermMonths = termMonths;
+        UpdatedUtc = utc;
+    }
+
+    public void AssignTo(Guid assigneeId, DateTime changedUtc)
+    {
+        if (assigneeId == Guid.Empty)
+        {
+            throw new DomainValidationException("Assignee id is required.");
+        }
+
+        var utc = RequireChronologicalUtc(changedUtc, nameof(changedUtc));
+        AssigneeId = assigneeId;
+        UpdatedUtc = utc;
+    }
+
+    public void SetBusinessPriority(BusinessPriority businessPriority, DateTime changedUtc)
+    {
+        var utc = RequireChronologicalUtc(changedUtc, nameof(changedUtc));
+        BusinessPriority = businessPriority;
+        UpdatedUtc = utc;
+    }
+
     public void TransitionTo(LoanStatus nextStatus, Guid actorId, string? reason, DateTime changedUtc)
     {
         if (actorId == Guid.Empty)
@@ -113,9 +176,14 @@ public sealed class LoanApplication
 
     private void EnsureReadyForSubmission()
     {
-        if (Borrower is null || Property is null)
+        if (Borrower is null || Property is null || LoanPurpose is null || InterestRatePercent is null || TermMonths is null)
         {
-            throw new DomainValidationException("A loan must include borrower and property details before submission.");
+            throw new DomainValidationException("A loan must include borrower, property, and loan terms before submission.");
+        }
+
+        if (RequestedAmount.Amount > Property.EstimatedValue.Amount)
+        {
+            throw new DomainValidationException("Requested loan amount cannot exceed the estimated property value.");
         }
     }
 
