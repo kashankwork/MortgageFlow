@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The MVP should be understandable in a short interview walkthrough. Generic abstractions can hide the business rules that this project is meant to showcase.
+The MVP should be understandable in a short technical walkthrough. Generic abstractions can hide the business rules that this project is meant to showcase.
 
 ## Decision
 

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MortgageFlow.Api.Auth;
+using MortgageFlow.Api.Diagnostics;
 using MortgageFlow.Api.Health;
 using MortgageFlow.Api.OpenApi;
 using MortgageFlow.Application.Authentication;
+using MortgageFlow.Application.Diagnostics;
 using MortgageFlow.Application.Users;
 using MortgageFlow.Infrastructure;
 using MortgageFlow.Infrastructure.Authentication;
@@ -17,6 +19,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
+builder.Services.AddScoped<ICorrelationContext, HttpCorrelationContext>();
 
 // Infrastructure owns SQL Server, EF Core, Identity, and JWT token creation.
 // The API wires those services in but keeps business/application contracts separate.
@@ -29,6 +32,7 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecu
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.UseMiddleware<CorrelationLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
