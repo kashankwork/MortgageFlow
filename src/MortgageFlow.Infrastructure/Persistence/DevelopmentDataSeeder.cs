@@ -289,9 +289,9 @@ public sealed class DevelopmentDataSeeder
         loan.AddProperty(
             Property.Create(
                 "123 Synthetic Lane",
-                "Pontiac",
+                "Birmingham",
                 "MI",
-                "48341",
+                "48009",
                 Money.Usd(350_000),
                 OccupancyType.PrimaryResidence),
             createdUtc.AddMinutes(2));

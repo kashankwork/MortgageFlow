@@ -20,4 +20,10 @@ build/
 *.suo
 *.log
 .DS_Store
-UWM_MortgageFlow_Execution_Plan.docx
+*MortgageFlow_Execution_Plan.docx
+
+# Local/private preparation notes. Keep personal prep and
+# local security notes out of public Git.
+.private/
+PRIVATE_NOTES.md
+*.local.md

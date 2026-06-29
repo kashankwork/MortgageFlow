@@ -86,7 +86,7 @@ public sealed class LoanApplicationTests
         var loan = CreateDraft();
         loan.AddBorrower(Borrower.Create("Synthetic Borrower", "borrower@example.test", Money.Usd(125_000)), Now);
         loan.AddProperty(
-            Property.Create("123 Demo Street", "Pontiac", "MI", "48341", Money.Usd(350_000)),
+            Property.Create("123 Demo Street", "Birmingham", "MI", "48009", Money.Usd(350_000)),
             Now.AddMinutes(2));
         loan.UpdateLoanTerms(Money.Usd(300_000), LoanPurpose.Purchase, 6.5m, 360, Now.AddMinutes(3));
 
@@ -168,7 +168,7 @@ public sealed class LoanApplicationTests
     {
         var loan = CreateDraft();
         loan.AddBorrower(Borrower.Create("Synthetic Borrower", "borrower@example.test", Money.Usd(125_000)), Now);
-        loan.AddProperty(Property.Create("123 Demo Street", "Pontiac", "MI", "48341", Money.Usd(350_000)), Now);
+        loan.AddProperty(Property.Create("123 Demo Street", "Birmingham", "MI", "48009", Money.Usd(350_000)), Now);
         loan.UpdateLoanTerms(Money.Usd(300_000), LoanPurpose.Purchase, 6.5m, 360, Now.AddMinutes(1));
         return loan;
     }

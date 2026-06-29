@@ -14,6 +14,6 @@ MortgageFlow will use a modular-monolith structure with separate Domain, Applica
 
 ## Consequences
 
-- The solution remains easy to run and explain in an interview.
+- The solution remains easy to run and explain in a short technical walkthrough.
 - Boundaries are explicit through project references.
 - Microservices can be extracted later only if the MVP needs that complexity.

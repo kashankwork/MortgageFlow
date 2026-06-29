@@ -302,9 +302,9 @@ public sealed class AssignmentEndpointTests : IClassFixture<MortgageFlowApiFacto
         loan.AddProperty(
             Property.Create(
                 "123 Assignment Street",
-                "Pontiac",
+                "Birmingham",
                 "MI",
-                "48341",
+                "48009",
                 Money.Usd(360_000),
                 OccupancyType.PrimaryResidence),
             createdUtc.AddMinutes(2));
