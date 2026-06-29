@@ -18,6 +18,8 @@ docker compose up -d --build
 docker compose ps
 ```
 
+Published ports are bound to `127.0.0.1` for local-only access to SQL Server, the API, and the frontend.
+
 `docker compose config --quiet` validates the file without printing resolved values. Plain `docker compose config` expands local environment values, so avoid sharing that output.
 
 Open the frontend:
