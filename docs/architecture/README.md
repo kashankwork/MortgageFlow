@@ -172,4 +172,4 @@ When equal candidates tie on normalized load, a persisted round-robin cursor rot
 - Status history and audit rows are saved in the same transaction as successful workflow changes.
 - Failed transitions and failed assignments do not write misleading audit/history rows.
 - Request correlation IDs are accepted from `X-Correlation-ID` only when short and safe; otherwise the server trace ID is used.
-- SQL Server row-level security is not enabled in this MVP. Role visibility is enforced in application queries and services, with database-level policy as future hardening.
+- SQL Server row-level security is not enabled in the current version. Role visibility is enforced in application queries and services, with database-level policy as future hardening.

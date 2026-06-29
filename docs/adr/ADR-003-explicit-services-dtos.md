@@ -6,11 +6,11 @@ Accepted
 
 ## Context
 
-The MVP should be understandable in a short technical walkthrough. Generic abstractions can hide the business rules that this project is meant to showcase.
+MortgageFlow should keep business behavior clear. Generic abstractions can hide the workflow rules that the application depends on.
 
 ## Decision
 
-Use explicit application services and DTOs. Do not add MediatR or a generic repository unless the MVP develops a concrete need for them.
+Use explicit application services and DTOs. Do not add MediatR or a generic repository unless the product develops a concrete need for them.
 
 ## Consequences
 
