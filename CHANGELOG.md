@@ -20,7 +20,7 @@ All notable release-ready changes are summarized here.
 ### Security and data boundaries
 
 - Real secrets are externalized through local environment configuration.
-- `.env` values, JWT signing keys, SQL passwords, demo passwords, tokens, local notes, and private prep files are ignored.
+- `.env` values, JWT signing keys, SQL passwords, demo passwords, tokens, and local notes are ignored.
 - Demo users and loans use synthetic data only.
 - Audit summaries avoid borrower names, borrower emails, income values, and property details.
 

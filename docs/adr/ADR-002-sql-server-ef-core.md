@@ -10,10 +10,10 @@ The project should map naturally to enterprise .NET expectations and prove SQL-b
 
 ## Decision
 
-MortgageFlow will use SQL Server with EF Core in the persistence milestone.
+MortgageFlow uses SQL Server with EF Core for persistence.
 
 ## Consequences
 
 - The Domain project remains persistence-free.
-- Migrations, indexes, row-version concurrency, and normalized relationships become visible portfolio evidence.
+- Migrations, indexes, row-version concurrency, and normalized relationships are part of the implementation.
 - Local setup will use Docker Compose for repeatable development.

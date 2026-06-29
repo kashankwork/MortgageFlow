@@ -1,6 +1,6 @@
 # MortgageFlow
 
-MortgageFlow is a role-based mortgage workflow and assignment simulation built as a production-style full-stack portfolio project.
+MortgageFlow is a role-based mortgage workflow and assignment simulation built as a production-style full-stack application.
 
 It demonstrates how a broker-facing loan intake flow can move through secure backend workflow rules, SQL-backed persistence, deterministic assignment, and a React review interface. All data is synthetic. This project does not claim to reproduce any company's internal systems, proprietary workflows, or business rules.
 
@@ -207,6 +207,6 @@ GitHub Actions runs backend build/tests with SQL Server, frontend lint/typecheck
 
 - [Architecture notes](docs/architecture/README.md)
 - [Operations notes](docs/operations/README.md)
-- [Demo guide](docs/demo/README.md)
+- [Product walkthrough](docs/demo/README.md)
 - [Screenshots](docs/screenshots/README.md)
 - [ADRs](docs/adr)

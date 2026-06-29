@@ -1,6 +1,6 @@
 # Operations Notes
 
-These commands are for local review and portfolio demonstration. All data is synthetic.
+These commands are for local review and operation. All data is synthetic.
 
 ## Full Docker startup
 

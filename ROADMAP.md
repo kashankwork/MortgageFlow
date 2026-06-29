@@ -1,30 +1,28 @@
-# MortgageFlow Product Roadmap
+# MortgageFlow Roadmap
 
-## Locked MVP
+## Current scope
 
-MortgageFlow is a role-based mortgage workflow and intelligent assignment platform. The MVP proves:
+MortgageFlow is a role-based mortgage workflow and intelligent assignment platform. The current version includes:
 
 - C# domain modeling and OOP behavior.
 - Controlled loan workflow transitions.
 - REST API and role authorization.
 - SQL persistence and normalized data.
 - Hybrid priority and assignment logic.
-- Tests, CI, Docker, and portfolio documentation.
+- Tests, CI, Docker, and operational documentation.
 
-## Delivery milestones
+## Included capabilities
 
-1. Foundation: domain model, workflow tests, and basic CI.
-2. Persistence and security: SQL Server, EF Core, Identity, JWT, and API standards.
-3. Loan workflow: intake APIs, transitions, history, and concurrency.
-4. Assignment: priority, eligibility, least-loaded assignment, and queue APIs.
-5. User experience: React login, loans, details, queue, and Team Lead screen.
-6. Operations: integration tests, CI quality gates, Docker, logging, and health.
-7. Portfolio polish: README, diagrams, screenshots, demo, and release preparation.
+- Secure synthetic user authentication with role-based authorization.
+- Loan intake, draft update, submission, workflow transitions, and status history.
+- Team assignment using eligibility, workload, priority, capacity, and round-robin tie-breaking.
+- Processor, underwriter, broker, and team lead views in the React frontend.
+- SQL-backed integration tests, frontend tests, Docker Compose, and CI quality gates.
 
-## Current milestone boundary
+## Current boundary
 
-The current milestone packages the completed MVP for public review: documentation, diagrams, screenshots, demo flow, release notes, and final verification evidence. It does not add new product features.
+The current version focuses on the core workflow and assignment system. It does not include document upload, external integrations, administrator tooling, or cloud deployment.
 
 ## Deferred scope
 
-Document upload, advanced dashboards, administrator tooling, Kafka, Redis, microservices, cloud deployment, and database-level row security are intentionally deferred until after the MVP is complete and explainable.
+Document upload, advanced dashboards, administrator tooling, Kafka, Redis, microservices, cloud deployment, and database-level row security are intentionally deferred.

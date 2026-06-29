@@ -19,4 +19,4 @@ Do not commit JWT signing keys, SQL passwords, demo passwords, API keys, or conn
 
 ## Reporting issues
 
-For this portfolio project, record security issues as private notes or local issues until the repository is ready for public review.
+Record security issues privately until they can be fixed without exposing sensitive details.
